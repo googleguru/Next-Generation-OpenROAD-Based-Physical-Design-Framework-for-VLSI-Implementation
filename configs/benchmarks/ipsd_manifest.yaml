@@ -1,0 +1,59 @@
+# IPSD benchmark manifest
+# Paths are relative to base_dir.
+# Only circuits with all required collateral present will be executed.
+# Missing collateral causes the circuit to be SKIPPED with an explicit log.
+
+base_dir: "benchmarks/ipsd"
+
+benchmarks:
+  - name: "gcd"
+    netlist: "gcd/gcd.v"
+    sdc: "gcd/gcd.sdc"
+    pdk: "nangate45"
+    pdk_lef: "../../pdks/nangate45/FreePDK45/Cells.lef"
+    lib_file: "../../pdks/nangate45/CCS/NangateOpenCellLibrary_typical.lib"
+    site_name: "FreePDK45_38x28_10R_NP_162NW_34O"
+    die_area: [0, 0, 75, 75]
+    core_margin: 5.0
+    target_density: 0.70
+    clock_period_ns: 2.5
+    notes: "GCD datapath — small reference design"
+
+  - name: "aes"
+    netlist: "aes/aes.v"
+    sdc: "aes/aes.sdc"
+    pdk: "nangate45"
+    pdk_lef: "../../pdks/nangate45/FreePDK45/Cells.lef"
+    lib_file: "../../pdks/nangate45/CCS/NangateOpenCellLibrary_typical.lib"
+    site_name: "FreePDK45_38x28_10R_NP_162NW_34O"
+    die_area: [0, 0, 600, 600]
+    core_margin: 10.0
+    target_density: 0.70
+    clock_period_ns: 2.0
+    notes: "AES-128 cipher core"
+
+  - name: "ibex"
+    netlist: "ibex/ibex_core.v"
+    sdc: "ibex/ibex.sdc"
+    pdk: "sky130hd"
+    pdk_lef: "../../pdks/sky130hd/lef/sky130_fd_sc_hd.lef"
+    lib_file: "../../pdks/sky130hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
+    site_name: "unithd"
+    die_area: [0, 0, 2920.0, 3520.0]
+    core_margin: 15.0
+    target_density: 0.65
+    clock_period_ns: 5.0
+    notes: "RISC-V RV32IMC — sky130hd — medium complexity"
+
+  - name: "jpeg_encoder"
+    netlist: "jpeg/jpeg_encoder.v"
+    sdc: "jpeg/jpeg.sdc"
+    pdk: "nangate45"
+    pdk_lef: "../../pdks/nangate45/FreePDK45/Cells.lef"
+    lib_file: "../../pdks/nangate45/CCS/NangateOpenCellLibrary_typical.lib"
+    site_name: "FreePDK45_38x28_10R_NP_162NW_34O"
+    die_area: [0, 0, 1400, 1400]
+    core_margin: 10.0
+    target_density: 0.65
+    clock_period_ns: 2.0
+    notes: "JPEG encoder — medium-large"

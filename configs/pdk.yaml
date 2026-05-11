@@ -1,0 +1,45 @@
+# pdk.yaml — PDK / library corner configurations
+# Reference one of these profiles from a benchmark manifest using pdk: <key>
+
+pdks:
+  nangate45:
+    name: "NanGate 45nm Open Cell Library"
+    pdk_lef: "pdks/nangate45/FreePDK45/Cells.lef"
+    tech_lef: "pdks/nangate45/FreePDK45/FreePDK45.lef"
+    lib_file: "pdks/nangate45/CCS/NangateOpenCellLibrary_typical.lib"
+    site_name: "FreePDK45_38x28_10R_NP_162NW_34O"
+    clock_wire_layer: "metal5"
+    signal_wire_layer: "metal3"
+    cts_root_buf: "BUF_X4"
+    cts_buf_list: "BUF_X2 BUF_X4 BUF_X8"
+    bottom_layer: "metal1"
+    top_layer: "metal10"
+    notes: "Public 45 nm PDK — suitable for academic benchmarks"
+
+  sky130hd:
+    name: "SkyWater 130nm HD"
+    pdk_lef: "pdks/sky130hd/lef/sky130_fd_sc_hd.lef"
+    tech_lef: "pdks/sky130hd/lef/sky130_fd_sc_hd__tech.lef"
+    lib_file: "pdks/sky130hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
+    site_name: "unithd"
+    clock_wire_layer: "met4"
+    signal_wire_layer: "met3"
+    cts_root_buf: "sky130_fd_sc_hd__buf_12"
+    cts_buf_list: "sky130_fd_sc_hd__buf_4 sky130_fd_sc_hd__buf_8 sky130_fd_sc_hd__buf_12"
+    bottom_layer: "li1"
+    top_layer: "met5"
+    notes: "SkyWater 130 nm open PDK — fully open source"
+
+  asap7:
+    name: "ASAP 7nm Predictive PDK"
+    pdk_lef: "pdks/asap7/lef/asap7sc7p5t_28_R.lef"
+    tech_lef: "pdks/asap7/lef/asap7_tech.lef"
+    lib_file: "pdks/asap7/lib/asap7sc7p5t_RVT_TT_nldm_211120.lib"
+    site_name: "asap7sc7p5t"
+    clock_wire_layer: "M5"
+    signal_wire_layer: "M3"
+    cts_root_buf: "BUFx4_ASAP7_75t_R"
+    cts_buf_list: "BUFx2_ASAP7_75t_R BUFx4_ASAP7_75t_R BUFx8_ASAP7_75t_R"
+    bottom_layer: "M1"
+    top_layer: "M9"
+    notes: "Predictive 7 nm PDK — not a real foundry PDK"

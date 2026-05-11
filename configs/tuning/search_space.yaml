@@ -1,0 +1,58 @@
+# Tuning search space — used by both RuleBasedTuner and BayesianTuner
+
+parameters:
+  - name: target_density
+    type: float
+    low: 0.50
+    high: 0.80
+    step: 0.05
+    default: 0.70
+    description: "Global placement target density"
+
+  - name: cts_cluster_size
+    type: int
+    low: 5
+    high: 40
+    step: 5
+    default: 20
+    description: "CTS sink clustering size"
+
+  - name: cts_buf_distance
+    type: int
+    low: 50
+    high: 300
+    step: 25
+    default: 100
+    description: "CTS distance between inserted buffers (um)"
+
+  - name: routing_overflow_iter
+    type: int
+    low: 25
+    high: 150
+    step: 25
+    default: 50
+    description: "Global routing overflow iterations"
+
+  - name: droute_end_iter
+    type: int
+    low: 32
+    high: 256
+    step: 32
+    default: 64
+    description: "Detailed routing end iteration limit"
+
+  - name: max_buffer_percent
+    type: int
+    low: 10
+    high: 40
+    step: 5
+    default: 20
+    description: "Maximum buffer insertion as % of cell count"
+
+  - name: post_cts_slack_margin
+    type: float
+    low: 0.0
+    high: 0.5
+    step: 0.05
+    default: 0.1
+    description: "Hold slack margin target after CTS (ns)"

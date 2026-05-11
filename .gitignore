@@ -1,0 +1,43 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+.env
+.venv
+env/
+venv/
+
+# Generated outputs (preserve directory structure)
+outputs/runs/*
+outputs/figures/*.png
+outputs/figures/*.pdf
+outputs/tables/*.csv
+outputs/tables/*.parquet
+outputs/logs/*.log
+outputs/reports/REPORT.md
+!outputs/runs/.gitkeep
+!outputs/figures/.gitkeep
+!outputs/tables/.gitkeep
+!outputs/logs/.gitkeep
+!outputs/reports/.gitkeep
+
+# PDK collateral (usually large / proprietary)
+pdks/*/
+
+# Benchmark source files
+benchmarks/ipsd/*/
+benchmarks/iscas/*/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

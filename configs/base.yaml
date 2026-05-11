@@ -1,0 +1,102 @@
+# base.yaml — default flow configuration
+# Override per-design in benchmark manifests or via CLI --config
+
+framework_version: "1.0.0"
+
+flow:
+  max_retries: 2
+  timeout_s: 3600
+  abort_on_critical_alarm: false
+  tuner_mode: "rule"           # "rule" | "bayesian" | "none"
+  rollback_enabled: true
+  seed: 42
+
+eda:
+  binary: "openroad"
+  extra_args: []
+  env_extra: {}
+
+stage_defaults:
+  floorplan:
+    core_margin: 10.0
+    hor_pin_layer: "metal3"
+    ver_pin_layer: "metal2"
+
+  pdn:
+    pdn_follow_layer: "metal1"
+    pdn_rail_width: 0.48
+    pdn_stripe_layer: "metal5"
+    pdn_stripe_width: 1.6
+    pdn_stripe_pitch: 56.0
+    pdn_stripe_offset: 2.0
+
+  global_place:
+    target_density: 0.70
+    pad_left: 2
+    pad_right: 2
+    timing_driven: true
+    routability_driven: true
+    clock_wire_layer: "metal5"
+    signal_wire_layer: "metal3"
+    run_repair_before_dp: false
+    max_wire_length: 800
+
+  detail_place:
+    max_displacement: 5
+    mirror_instances: true
+    repair_timing: true
+    slack_margin: 0.0
+    max_buffer_percent: 20
+    clock_wire_layer: "metal5"
+    signal_wire_layer: "metal3"
+
+  cts:
+    cts_root_buf: "BUF_X4"
+    cts_buf_list: "BUF_X2 BUF_X4 BUF_X8"
+    cts_wire_unit: 20
+    cts_max_slew: 0.25
+    cts_max_cap: 0.02
+    cts_slew_inter: 0.05
+    cts_cap_inter: 0.004
+    cts_cluster_size: 20
+    cts_cluster_diam: 50.0
+    cts_buf_distance: 100
+    repair_post_cts: true
+    post_cts_slack_margin: 0.1
+    clock_wire_layer: "metal5"
+    signal_wire_layer: "metal3"
+
+  global_route:
+    routing_overflow_iter: 50
+    allow_congestion: false
+    repair_post_groute: true
+    post_route_slack_margin: 0.0
+    clock_wire_layer: "metal5"
+    signal_wire_layer: "metal3"
+
+  detail_route:
+    bottom_layer: "metal1"
+    top_layer: "metal9"
+    droute_end_iter: 64
+    via_in_pin_bot: 1
+    via_in_pin_top: 3
+
+  finish:
+    write_gds: false
+    fix_antennas: true
+    antenna_fix_iter: 3
+    clock_wire_layer: "metal5"
+    signal_wire_layer: "metal3"
+
+storage:
+  output_dir: "outputs"
+  runs_dir: "outputs/runs"
+  figures_dir: "outputs/figures"
+  tables_dir: "outputs/tables"
+  logs_dir: "outputs/logs"
+  reports_dir: "outputs/reports"
+
+reporting:
+  auto_update_readme: true
+  generate_html: false
+  figures_format: "png"

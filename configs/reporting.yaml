@@ -1,0 +1,54 @@
+# reporting.yaml — visualization and report configuration
+
+figures:
+  format: "png"
+  dpi: 200
+  white_background: true
+  constrained_layout: true
+
+  plots:
+    - qor_trend_wns
+    - qor_trend_tns
+    - qor_trend_overflow
+    - runtime_breakdown
+    - multi_metric_cross_stage
+    - congestion_vs_timing
+    - ablation_comparison
+    - benchmark_summary_table
+    - multi_seed_box_wns
+    - success_rate
+
+report:
+  auto_update_readme: true
+  readme_path: "README.md"
+  report_path: "outputs/reports/REPORT.md"
+  include_skipped_table: true
+  max_table_rows: 50
+
+ablation:
+  configs:
+    - name: "baseline"
+      description: "Standard flow, no extra modules"
+      modules: []
+    - name: "+experiment_manager"
+      description: "Flow + structured experiment manager"
+      modules: ["storage"]
+    - name: "+adaptive_tuning"
+      description: "Flow + rule-based adaptive tuning"
+      modules: ["storage", "tuning"]
+    - name: "+diagnostics"
+      description: "Flow + tuning + failure diagnostics"
+      modules: ["storage", "tuning", "diagnostics"]
+    - name: "full"
+      description: "All modules enabled"
+      modules: ["storage", "tuning", "diagnostics", "feedback", "rollback"]
+
+sweep:
+  seeds: [42, 123, 7, 31, 99]
+  metrics_to_report:
+    - wns
+    - tns
+    - overflow
+    - drc_violations
+    - wirelength
+    - total_runtime_s

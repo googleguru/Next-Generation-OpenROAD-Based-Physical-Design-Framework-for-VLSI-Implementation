@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  pdflow:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: pdflow:latest
+    container_name: pdflow
+    volumes:
+      - ../benchmarks:/workspace/benchmarks
+      - ../pdks:/workspace/pdks
+      - ../outputs:/workspace/outputs
+    environment:
+      - EDA_BINARY=openroad
+      - LOG_LEVEL=INFO
+    working_dir: /workspace
+
+  # One-command targets
+  baseline:
+    extends:
+      service: pdflow
+    command: ["run", "--design", "gcd", "--config", "configs/base.yaml",
+              "--no-tuning", "--no-diagnostics"]
+
+  run:
+    extends:
+      service: pdflow
+    command: ["run", "--design", "${DESIGN:-gcd}", "--config", "configs/base.yaml",
+              "--seed", "${SEED:-42}"]
+
+  sweep:
+    extends:
+      service: pdflow
+    command: ["sweep", "--manifest", "configs/benchmarks/ipsd_manifest.yaml",
+              "--seeds", "42", "123", "7"]
+
+  ablation:
+    extends:
+      service: pdflow
+    command: ["ablation", "--manifest", "configs/benchmarks/ipsd_manifest.yaml"]
+
+  report:
+    extends:
+      service: pdflow
+    command: ["report", "--runs-dir", "outputs/runs"]
+
+  validate:
+    extends:
+      service: pdflow
+    command: ["validate", "--manifest", "configs/benchmarks/ipsd_manifest.yaml"]

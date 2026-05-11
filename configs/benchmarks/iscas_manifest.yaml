@@ -1,0 +1,74 @@
+# ISCAS benchmark manifest
+# Sequential circuits (s-series) are synthesized via Yosys to a target library.
+# Combinational circuits (c-series) are skipped — no clock domain.
+
+base_dir: "benchmarks/iscas"
+
+# Shared PDK collateral for all ISCAS circuits
+lib_file: "../../pdks/nangate45/CCS/NangateOpenCellLibrary_typical.lib"
+pdk_lef: "../../pdks/nangate45/FreePDK45/Cells.lef"
+
+circuits:
+  # --- Combinational (will be auto-skipped) ---
+  - name: "c17"
+    bench_file: "combinational/c17.bench"
+    clock_period_ns: 5.0
+    die_area: [0, 0, 50, 50]
+
+  - name: "c432"
+    bench_file: "combinational/c432.bench"
+    clock_period_ns: 5.0
+    die_area: [0, 0, 100, 100]
+
+  - name: "c880"
+    bench_file: "combinational/c880.bench"
+    clock_period_ns: 5.0
+    die_area: [0, 0, 200, 200]
+
+  - name: "c7552"
+    bench_file: "combinational/c7552.bench"
+    clock_period_ns: 5.0
+    die_area: [0, 0, 500, 500]
+
+  # --- Sequential (will be synthesized and implemented) ---
+  - name: "s27"
+    bench_file: "sequential/s27.bench"
+    clock_period_ns: 5.0
+    die_area: [0, 0, 60, 60]
+    core_margin: 5.0
+    site_name: "FreePDK45_38x28_10R_NP_162NW_34O"
+
+  - name: "s298"
+    bench_file: "sequential/s298.bench"
+    clock_period_ns: 5.0
+    die_area: [0, 0, 100, 100]
+    core_margin: 5.0
+    site_name: "FreePDK45_38x28_10R_NP_162NW_34O"
+
+  - name: "s526"
+    bench_file: "sequential/s526.bench"
+    clock_period_ns: 5.0
+    die_area: [0, 0, 150, 150]
+    core_margin: 5.0
+    site_name: "FreePDK45_38x28_10R_NP_162NW_34O"
+
+  - name: "s1423"
+    bench_file: "sequential/s1423.bench"
+    clock_period_ns: 5.0
+    die_area: [0, 0, 250, 250]
+    core_margin: 5.0
+    site_name: "FreePDK45_38x28_10R_NP_162NW_34O"
+
+  - name: "s5378"
+    bench_file: "sequential/s5378.bench"
+    clock_period_ns: 5.0
+    die_area: [0, 0, 700, 700]
+    core_margin: 8.0
+    site_name: "FreePDK45_38x28_10R_NP_162NW_34O"
+
+  - name: "s38584"
+    bench_file: "sequential/s38584.bench"
+    clock_period_ns: 5.0
+    die_area: [0, 0, 2000, 2000]
+    core_margin: 10.0
+    site_name: "FreePDK45_38x28_10R_NP_162NW_34O"
