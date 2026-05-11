@@ -280,9 +280,140 @@ Remediation suggestions:
 ---
 
 <!-- RESULTS_START -->
-### Latest Results
+## ISCAS-89 Physical Design Results
 
-*No runs completed yet. Run `make sweep` after placing benchmark collateral.*
+Five sequential ISCAS-89 benchmark circuits (s27, s298, s344, s386, s526) were run through
+a complete Python-native PD flow: **Partitioning → Floorplanning → Placement → STA → Layout → Compaction → RC Extraction → GDS II**.
+All figures were saved with white backgrounds at 180 DPI.
+
+### Circuit Statistics
+
+| Circuit | Primary Inputs | Flip-Flops | Gates | Description |
+|---------|---------------|-----------|-------|-------------|
+| s27     | 7             | 3         | 17    | Simple sequential FSM |
+| s298    | 3             | 14        | 123   | Lock controller FSM |
+| s344    | 9             | 15        | 163   | BCD incrementer |
+| s386    | 7             | 6         | 160   | Viterbi decoder FSM |
+| s526    | 3             | 24        | 197   | Arbiter / priority encoder |
+
+### QoR Summary
+
+| Circuit | HPWL | WNS (ps) | TNS (ps) | Depth | Violations | Die W×H | Area Red. | Wire (μm) | Elmore Max (ps) |
+|---------|------|----------|----------|-------|------------|---------|-----------|-----------|-----------------|
+| s27     | 33.0 | 0.0      | 0.0      | 13    | 0          | 5.5×4.4 | 46.2%     | 13.4      | 4.2 |
+| s298    | 803.1 | 3919.0  | 0.0      | 3     | 0          | 14.3×11.0| 15.9%    | 258.9     | 4.7 |
+| s344    | 1001.3 | 2801.0 | 0.0      | 9     | 0          | 16.5×12.1| 12.4%    | 365.7     | 4.8 |
+| s386    | 1120.3 | -413.0 | -4348.0  | 57    | 20         | 16.5×12.1| 12.4%    | 366.6     | 5.0 |
+| s526    | 1389.3 | 3306.0 | 0.0      | 5     | 0          | 18.7×13.2| 9.6%     | 426.2     | 4.9 |
+
+> s386 has 20 timing violations (WNS = −413 ps) due to its 57-stage combinational depth.
+
+### GDS II Files
+
+Binary GDS II files written to `outputs/gds/`:
+
+| File | Size |
+|------|------|
+| [s27.gds](outputs/gds/s27.gds) | 4.8 KB |
+| [s298.gds](outputs/gds/s298.gds) | 32 KB |
+| [s344.gds](outputs/gds/s344.gds) | 42 KB |
+| [s386.gds](outputs/gds/s386.gds) | 43 KB |
+| [s526.gds](outputs/gds/s526.gds) | 52 KB |
+
+Layers: `0` = combinational gates, `1` = wire paths, `2` = flip-flops, `4` = primary inputs, `5` = labels, `10` = die outline.
+
+---
+
+### Visualizations
+
+#### Summary — All Circuits
+
+| Multi-Circuit Comparison | Results Table |
+|:---:|:---:|
+| ![Multi-circuit comparison](outputs/figures/iscas89/iscas89_summary.png) | ![Results table](outputs/figures/iscas89/iscas89_table.png) |
+
+---
+
+#### s27 — Simple Sequential FSM (17 gates, 3 FFs)
+
+| Partitioning | Floorplan | Placement |
+|:---:|:---:|:---:|
+| ![s27 partition](outputs/figures/iscas89/s27/s27_partition.png) | ![s27 floorplan](outputs/figures/iscas89/s27/s27_floorplan.png) | ![s27 placement](outputs/figures/iscas89/s27/s27_placement.png) |
+
+| STA | Critical Path | Layout |
+|:---:|:---:|:---:|
+| ![s27 sta](outputs/figures/iscas89/s27/s27_sta.png) | ![s27 critical path](outputs/figures/iscas89/s27/s27_critical_path.png) | ![s27 layout](outputs/figures/iscas89/s27/s27_layout.png) |
+
+| Compaction | RC Extraction | GDS Preview |
+|:---:|:---:|:---:|
+| ![s27 compaction](outputs/figures/iscas89/s27/s27_compaction.png) | ![s27 rc](outputs/figures/iscas89/s27/s27_rc_extraction.png) | ![s27 gds](outputs/figures/iscas89/s27/s27_gds_preview.png) |
+
+---
+
+#### s298 — Lock Controller FSM (123 gates, 14 FFs)
+
+| Partitioning | Floorplan | Placement |
+|:---:|:---:|:---:|
+| ![s298 partition](outputs/figures/iscas89/s298/s298_partition.png) | ![s298 floorplan](outputs/figures/iscas89/s298/s298_floorplan.png) | ![s298 placement](outputs/figures/iscas89/s298/s298_placement.png) |
+
+| STA | Critical Path | Layout |
+|:---:|:---:|:---:|
+| ![s298 sta](outputs/figures/iscas89/s298/s298_sta.png) | ![s298 critical path](outputs/figures/iscas89/s298/s298_critical_path.png) | ![s298 layout](outputs/figures/iscas89/s298/s298_layout.png) |
+
+| Compaction | RC Extraction | GDS Preview |
+|:---:|:---:|:---:|
+| ![s298 compaction](outputs/figures/iscas89/s298/s298_compaction.png) | ![s298 rc](outputs/figures/iscas89/s298/s298_rc_extraction.png) | ![s298 gds](outputs/figures/iscas89/s298/s298_gds_preview.png) |
+
+---
+
+#### s344 — BCD Incrementer (163 gates, 15 FFs)
+
+| Partitioning | Floorplan | Placement |
+|:---:|:---:|:---:|
+| ![s344 partition](outputs/figures/iscas89/s344/s344_partition.png) | ![s344 floorplan](outputs/figures/iscas89/s344/s344_floorplan.png) | ![s344 placement](outputs/figures/iscas89/s344/s344_placement.png) |
+
+| STA | Critical Path | Layout |
+|:---:|:---:|:---:|
+| ![s344 sta](outputs/figures/iscas89/s344/s344_sta.png) | ![s344 critical path](outputs/figures/iscas89/s344/s344_critical_path.png) | ![s344 layout](outputs/figures/iscas89/s344/s344_layout.png) |
+
+| Compaction | RC Extraction | GDS Preview |
+|:---:|:---:|:---:|
+| ![s344 compaction](outputs/figures/iscas89/s344/s344_compaction.png) | ![s344 rc](outputs/figures/iscas89/s344/s344_rc_extraction.png) | ![s344 gds](outputs/figures/iscas89/s344/s344_gds_preview.png) |
+
+---
+
+#### s386 — Viterbi Decoder FSM (160 gates, 6 FFs)
+
+> **Note:** 20 timing violations, WNS = −413 ps, TNS = −4348 ps (57-stage combinational depth).
+
+| Partitioning | Floorplan | Placement |
+|:---:|:---:|:---:|
+| ![s386 partition](outputs/figures/iscas89/s386/s386_partition.png) | ![s386 floorplan](outputs/figures/iscas89/s386/s386_floorplan.png) | ![s386 placement](outputs/figures/iscas89/s386/s386_placement.png) |
+
+| STA | Critical Path | Layout |
+|:---:|:---:|:---:|
+| ![s386 sta](outputs/figures/iscas89/s386/s386_sta.png) | ![s386 critical path](outputs/figures/iscas89/s386/s386_critical_path.png) | ![s386 layout](outputs/figures/iscas89/s386/s386_layout.png) |
+
+| Compaction | RC Extraction | GDS Preview |
+|:---:|:---:|:---:|
+| ![s386 compaction](outputs/figures/iscas89/s386/s386_compaction.png) | ![s386 rc](outputs/figures/iscas89/s386/s386_rc_extraction.png) | ![s386 gds](outputs/figures/iscas89/s386/s386_gds_preview.png) |
+
+---
+
+#### s526 — Arbiter / Priority Encoder (197 gates, 24 FFs)
+
+| Partitioning | Floorplan | Placement |
+|:---:|:---:|:---:|
+| ![s526 partition](outputs/figures/iscas89/s526/s526_partition.png) | ![s526 floorplan](outputs/figures/iscas89/s526/s526_floorplan.png) | ![s526 placement](outputs/figures/iscas89/s526/s526_placement.png) |
+
+| STA | Critical Path | Layout |
+|:---:|:---:|:---:|
+| ![s526 sta](outputs/figures/iscas89/s526/s526_sta.png) | ![s526 critical path](outputs/figures/iscas89/s526/s526_critical_path.png) | ![s526 layout](outputs/figures/iscas89/s526/s526_layout.png) |
+
+| Compaction | RC Extraction | GDS Preview |
+|:---:|:---:|:---:|
+| ![s526 compaction](outputs/figures/iscas89/s526/s526_compaction.png) | ![s526 rc](outputs/figures/iscas89/s526/s526_rc_extraction.png) | ![s526 gds](outputs/figures/iscas89/s526/s526_gds_preview.png) |
+
 <!-- RESULTS_END -->
 
 <!-- AUTO_UPDATED --> *Last updated: 2026-05-11*
