@@ -14,6 +14,7 @@ from .sta import STAEngine, STAResult
 from .layout_engine import LayoutEngine, LayoutResult
 from .compactor import ConstraintCompactor, CompactionResult
 from .rc_extractor import RCExtractor, RCResult
+from .power_estimator import PowerEstimator, PowerResult
 from .gds_writer import GDSWriter
 
 
@@ -28,6 +29,7 @@ class CircuitFlowResult:
     layout: LayoutResult | None = None
     compaction: CompactionResult | None = None
     rc: RCResult | None = None
+    power: PowerResult | None = None
     gds_path: Path | None = None
     figure_paths: dict[str, Path] = field(default_factory=dict)
     stage_times: dict[str, float] = field(default_factory=dict)
@@ -138,29 +140,52 @@ class ISCAS89FlowRunner:
             result.errors["floorplan"] = str(exc)
             print(f"  [floorplan] ERROR: {exc}")
 
-        # 4. Placement
+        # 4. Placement (initial pass — timing-unaware)
         t0 = time.perf_counter()
         try:
             result.placement = ForcedDirectedPlacer().place(circ)
             result.stage_times["placement"] = time.perf_counter() - t0
             pl = result.placement
             print(f"  [placement] HPWL={pl.hpwl:.1f}, "
-                  f"overflow={pl.overflow:.2%}, density={pl.density:.2%}")
+                  f"overflow={pl.overflow:.2%}, density={pl.density:.2%}, "
+                  f"max_bin={pl.max_bin_density:.2%}")
         except Exception as exc:
             result.errors["placement"] = str(exc)
             print(f"  [placement] ERROR: {exc}")
 
-        # 5. STA
+        # 5. STA (used to guide timing-driven re-placement below)
         t0 = time.perf_counter()
         try:
             result.sta = STAEngine().run(circ)
             result.stage_times["sta"] = time.perf_counter() - t0
             st = result.sta
             print(f"  [sta]       WNS={st.wns_ps:.1f}ps, TNS={st.tns_ps:.1f}ps, "
-                  f"depth={st.critical_path_depth}, violating={st.num_violating_paths}")
+                  f"depth={st.critical_path_depth}, paths={st.num_paths_analyzed}, "
+                  f"viol={st.num_violating_paths}")
         except Exception as exc:
             result.errors["sta"] = str(exc)
             print(f"  [sta]       ERROR: {exc}")
+
+        # 5b. Timing-driven placement refinement (only if violations present)
+        if result.sta and result.sta.num_violating_paths > 0:
+            t0 = time.perf_counter()
+            try:
+                result.placement = ForcedDirectedPlacer(
+                    seed=99, sa_iters=6000
+                ).place(circ, sta_result=result.sta)
+                result.stage_times["td_placement"] = time.perf_counter() - t0
+                pl = result.placement
+                print(f"  [td_place]  HPWL={pl.improved_hpwl:.1f} "
+                      f"(Δ={pl.hpwl_improvement_pct:.1f}%), "
+                      f"overflow={pl.overflow:.2%}")
+                # Re-run STA on the improved placement
+                result.sta = STAEngine().run(circ)
+                st = result.sta
+                print(f"  [sta2]      WNS={st.wns_ps:.1f}ps, "
+                      f"TNS={st.tns_ps:.1f}ps, viol={st.num_violating_paths}")
+            except Exception as exc:
+                result.errors["td_placement"] = str(exc)
+                print(f"  [td_place]  ERROR: {exc}")
 
         # 6. Layout
         t0 = time.perf_counter()
@@ -197,14 +222,31 @@ class ISCAS89FlowRunner:
             result.rc = RCExtractor().extract(circ)
             result.stage_times["rc_extraction"] = time.perf_counter() - t0
             rc = result.rc
+            layer_summary = ", ".join(
+                f"{ls.layer}:{ls.net_count}" for ls in rc.layer_stats
+            )
             print(f"  [rc_extract] WL={rc.total_wirelength_um:.1f}μm, "
                   f"max_delay={rc.max_elmore_delay_ps:.1f}ps, "
-                  f"nets={len(rc.nets)}")
+                  f"layers=[{layer_summary}], "
+                  f"pwr≈{rc.estimated_power_uw:.1f}μW")
         except Exception as exc:
             result.errors["rc_extraction"] = str(exc)
             print(f"  [rc_extract] ERROR: {exc}")
 
-        # 9. GDS II
+        # 9. Power Estimation
+        t0 = time.perf_counter()
+        try:
+            result.power = PowerEstimator().estimate(circ, result.rc)
+            result.stage_times["power"] = time.perf_counter() - t0
+            pw = result.power
+            print(f"  [power]     dyn={pw.total_dyn_power_uw:.2f}μW, "
+                  f"leak={pw.total_leak_power_nw:.1f}nW, "
+                  f"total={pw.total_power_uw:.2f}μW")
+        except Exception as exc:
+            result.errors["power"] = str(exc)
+            print(f"  [power]     ERROR: {exc}")
+
+        # 11. GDS II
         t0 = time.perf_counter()
         try:
             if result.layout:
@@ -217,7 +259,7 @@ class ISCAS89FlowRunner:
             result.errors["gds"] = str(exc)
             print(f"  [gds]       ERROR: {exc}")
 
-        # 10. Visualize (circ is now post-compaction)
+        # 12. Visualize (circ is now post-compaction)
         self._visualize(circ, result)
 
         return result
@@ -354,6 +396,7 @@ class ISCAS89FlowRunner:
                 "area_reduction_pct": r.compaction.area_reduction_pct
                                        if r.compaction else 0.0,
                 "max_elmore_ps": r.rc.max_elmore_delay_ps if r.rc else 0.0,
+                "total_power_uw": r.power.total_power_uw if r.power else 0.0,
             })
 
         for fn_name, tag, arg in [

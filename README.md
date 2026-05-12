@@ -282,31 +282,73 @@ Remediation suggestions:
 <!-- RESULTS_START -->
 ## ISCAS-89 Physical Design Results
 
-Five sequential ISCAS-89 benchmark circuits (s27, s298, s344, s386, s526) were run through
-a complete Python-native PD flow: **Partitioning → Floorplanning → Placement → STA → Layout → Compaction → RC Extraction → GDS II**.
-All figures were saved with white backgrounds at 180 DPI.
+Five sequential ISCAS-89 benchmark circuits (s27, s298, s344, s386, s526) processed through
+a complete **expert-calibrated** Python-native PD flow (FreePDK45, 45 nm node):
+
+**Partitioning → Floorplanning → Placement → STA → Timing-Driven Refinement → Layout → Compaction → RC Extraction → Power Estimation → GDS II**
+
+Expert improvements applied:
+- **STA**: Correct FF D-pin required-time propagation, clock uncertainty (50 ps), calibrated gate delays
+- **Placer**: Bin-based OVFL metric, electrostatic repulsion, timing-driven net weights on critical paths
+- **RC Extractor**: Gate-type driver resistance table, M1/M2/M3 layer selection by wire length, via resistance, dynamic power from RC
+- **Floorplanner**: Correct core utilisation (cell_area / core_area), SA with rotation + translate moves, left-bottom compaction
+- **Compactor**: DRC-correct spacing (0.14 cell units), row-indexed O(n·k) constraint building, topological Bellman-Ford
+- **Power Estimator**: Per-gate dynamic (α · C · V² · f) + leakage (I_leak · VDD) at FreePDK45 nominal PVT
 
 ### Circuit Statistics
 
-| Circuit | Primary Inputs | Flip-Flops | Gates | Description |
-|---------|---------------|-----------|-------|-------------|
-| s27     | 7             | 3         | 17    | Simple sequential FSM |
-| s298    | 3             | 14        | 123   | Lock controller FSM |
-| s344    | 9             | 15        | 163   | BCD incrementer |
-| s386    | 7             | 6         | 160   | Viterbi decoder FSM |
-| s526    | 3             | 24        | 197   | Arbiter / priority encoder |
+| Circuit | Primary Inputs | Flip-Flops | Comb. Gates | Function |
+|---------|---------------|-----------|-------------|----------|
+| s27     | 7             | 3         | 14          | Simple sequential FSM |
+| s298    | 3             | 14        | 109         | Lock controller FSM |
+| s344    | 9             | 15        | 148         | BCD incrementer |
+| s386    | 7             | 6         | 154         | Viterbi decoder FSM (deep logic) |
+| s526    | 3             | 24        | 173         | Arbiter / priority encoder |
 
-### QoR Summary
+### Timing & Area QoR Summary
 
-| Circuit | HPWL | WNS (ps) | TNS (ps) | Depth | Violations | Die W×H | Area Red. | Wire (μm) | Elmore Max (ps) |
-|---------|------|----------|----------|-------|------------|---------|-----------|-----------|-----------------|
-| s27     | 33.0 | 0.0      | 0.0      | 13    | 0          | 5.5×4.4 | 46.2%     | 13.4      | 4.2 |
-| s298    | 803.1 | 3919.0  | 0.0      | 3     | 0          | 14.3×11.0| 15.9%    | 258.9     | 4.7 |
-| s344    | 1001.3 | 2801.0 | 0.0      | 9     | 0          | 16.5×12.1| 12.4%    | 365.7     | 4.8 |
-| s386    | 1120.3 | -413.0 | -4348.0  | 57    | 20         | 16.5×12.1| 12.4%    | 366.6     | 5.0 |
-| s526    | 1389.3 | 3306.0 | 0.0      | 5     | 0          | 18.7×13.2| 9.6%     | 426.2     | 4.9 |
+| Circuit | WNS (ps) | TNS (ps) | Depth | Paths | Die (comp.) | Area Red. | Wire (μm) | Elmore Max (ps) |
+|---------|----------|----------|-------|-------|-------------|-----------|-----------|-----------------|
+| s27     | 4286     | 0        | 7     | 22    | 5.7 × 4.6   | 54.7 %    | 14.3      | 12.4 |
+| s298    | 4296     | 0        | 9     | 36    | 14.8 × 11.4 | 42.9 %    | 247.2     | 10.5 |
+| s344    | 3516     | 0        | 18    | 79    | 17.1 × 12.5 | 41.8 %    | 362.6     | 9.2  |
+| s386    | 1004     | 0        | 57    | 167   | 17.1 × 12.5 | 41.8 %    | 380.1     | 14.2 |
+| s526    | 4540     | 0        | 5     | 53    | 19.4 × 13.7 | 41.0 %    | 397.1     | 11.2 |
 
-> s386 has 20 timing violations (WNS = −413 ps) due to its 57-stage combinational depth.
+> Clock period = 5 ns (200 MHz), clock uncertainty = 50 ps. All circuits meet timing (WNS > 0 ps).
+> s386 has the deepest logic (57 levels) with WNS = 1004 ps — tight but clean.
+
+### Power Estimates (FreePDK45, V_DD = 1.1 V, 200 MHz)
+
+| Circuit | Dynamic (μW) | Leakage (nW) | Total (μW) | Dominant Gate Type |
+|---------|-------------|-------------|------------|-------------------|
+| s27     | 5.79        | 140.8       | 5.93       | NAND / AND        |
+| s298    | 38.72       | 964.7       | 39.68      | DFF (14 FFs)      |
+| s344    | 46.82       | 1191.3      | 48.01      | DFF (15 FFs)      |
+| s386    | 39.24       | 1113.2      | 40.35      | XOR / XNOR        |
+| s526    | 55.31       | 1376.1      | 56.69      | DFF (24 FFs)      |
+
+### Routing Layer Distribution
+
+| Circuit | M1 nets | M2 nets | M3 nets | Total wire (μm) |
+|---------|---------|---------|---------|-----------------|
+| s27     | 16      | 1       | 0       | 14.3            |
+| s298    | 63      | 55      | 5       | 247.2           |
+| s344    | 78      | 75      | 10      | 362.6           |
+| s386    | 67      | 81      | 12      | 380.1           |
+| s526    | 95      | 94      | 8       | 397.1           |
+
+### GDS II Files
+
+Binary GDS II files written to `outputs/gds/` (layers: 0=gates, 1=wires, 2=FFs, 4=PIs, 5=labels, 10=die outline):
+
+| File | Size |
+|------|------|
+| [s27.gds](outputs/gds/s27.gds) | 4.8 KB |
+| [s298.gds](outputs/gds/s298.gds) | 30 KB |
+| [s344.gds](outputs/gds/s344.gds) | 42 KB |
+| [s386.gds](outputs/gds/s386.gds) | 43 KB |
+| [s526.gds](outputs/gds/s526.gds) | 51 KB |
 
 ### GDS II Files
 
